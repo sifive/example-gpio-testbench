@@ -1,6 +1,8 @@
 /* Copyright 2019 SiFive, Inc */
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include <stdio.h>
+
 #include <metal/cpu.h>
 #include <metal/gpio.h>
 #include <metal/interrupt.h>
@@ -61,16 +63,22 @@ int main() {
 	metal_gpio_enable_output(gpio, OUTPUT_PIN);
 
 	/* Test synchronous setting and getting */
+	puts("Write HIGH to OUTPUT_PIN");
 	metal_gpio_set_pin(gpio, OUTPUT_PIN, HIGH);
 	if (metal_gpio_get_input_pin(gpio, INPUT_PIN) != HIGH) {
+		puts("ERROR: Read LOW from INPUT_PIN");
 		return 5;
 	}
+	puts("Read HIGH from INPUT_PIN");
 
+	puts("Write LOW to OUTPUT_PIN");
 	metal_gpio_set_pin(gpio, 0, LOW);
 	if (metal_gpio_get_input_pin(gpio, INPUT_PIN) != LOW) {
+		puts("ERROR: Read HIGH from INPTU_PIN");
 		return 6;
 	}
 
+	puts("Configure INPUT_PIN for RISING interrupt");
 	/* Configure a rising interrupt and register a handler */
 	rc = metal_gpio_config_interrupt(gpio, INPUT_PIN, METAL_GPIO_INT_RISING);
 	if (rc != 0) {
@@ -92,11 +100,15 @@ int main() {
 	}
 
 	/* Trigger a rising interrupt */
+	puts("Write HIGH to OUTPUT_PIN");
 	metal_gpio_set_pin(gpio, OUTPUT_PIN, HIGH);
 	if (interrupt_count != 1) {
+		puts("ERROR: interrupt_count != 1");
 		return 11;
 	}
+	puts("Caught interrupt on INPUT_PIN");
 
+	puts("All checks PASSED");
 	return 0;
 }
 
